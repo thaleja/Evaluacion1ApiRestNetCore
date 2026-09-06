@@ -24,7 +24,7 @@ namespace apicampeonatosfifa.core.servicios
 
         Task<GrupoSeleccion> Modificar(GrupoSeleccion GrupoSeleccion);
 
-        Task<bool> Eliminar(int Id);
+        //Task<bool> Eliminar(int Id);
 
         // Tabla de Posiciones
         Task<IEnumerable<TablaPosicionDto>> ObtenerPosiciones(int Id);

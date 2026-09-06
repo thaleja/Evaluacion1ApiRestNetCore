@@ -1,12 +1,39 @@
+using apicampeonatosfifa.core;
+using apicampeonatosfifa.core.repositorios;
+using apicampeonatosfifa.core.servicios;
+using apicampeonatosfifa.infraestructura;
+using apicampeonatosfifa.infraestructura.Persistencia;
+using apicampeonatosfifa.infraestructura.Repositorios;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// 1. REGISTRAR CONTROLADORES
+builder.Services.AddControllers();
+
+// 2. REGISTRAR LAS CONEXIONES A LAS BASES DE DATOS
+// Base de datos del profesor (Campeonatos)
+builder.Services.AddDbContext<CampeonatosFIFAContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+
+// Base de datos tuya (Festivos)
+builder.Services.AddDbContext<FestivosContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FestivosConnection")));
+
+// 3. REGISTRAR REPOSITORIOS
+builder.Services.AddScoped<IPaisRepositorio, PaisRepositorio>();
+builder.Services.AddScoped<ITipoRepositorio, TipoRepositorio>();
+builder.Services.AddScoped<IFestivoRepositorio, FestivoRepositorio>();
+builder.Services.AddScoped<ISeleccionRepositorio, SeleccionRepositorio>(); // <-- Registramos el de selecciones del profesor
+
+// 4. REGISTRAR SERVICIO DE CALENDARIO
+builder.Services.AddScoped<ICalendarioServicio, CalendarioServicio>();
+
+// OpenAPI / Swagger
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -14,6 +41,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// 5. ENLAZAR RUTAS
+app.UseAuthorization();
+app.MapControllers();
+
+// --- PRUEBA ORIGINAL CLIMA ---
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -21,7 +53,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

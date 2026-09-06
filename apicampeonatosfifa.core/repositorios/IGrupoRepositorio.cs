@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using apicampeonatosfifa.dominio;
-using apicampeonatosfifa.dominio.Dtos;
+using apicampeonatosfifa.dominio;
 
 namespace apicampeonatosfifa.core.repositorios
 {
